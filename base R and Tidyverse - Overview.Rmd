@@ -1,0 +1,317 @@
+---
+title: "base R and Tidyverse - Overview"
+author: "Artem Urlapov Sedova"
+date: "2026-10-18"
+output: html_document
+---
+
+Let's load the document that we will be working with:
+
+```{r}
+
+library(readxl)
+
+usdata <- read_xlsx("C:/Users/artem/Desktop/R/Programación R/US Statistics.xlsx")
+
+# Change the location of the document by YOUR location of the document using CTRL C + CTRL V
+
+usdata <- as.data.frame(usdata)
+
+```
+
+Please, note that the previous code may fail to execute if the library `readxl` is not installed.
+
+You can install the library by writing down in the console:
+
+install.packages("readxl)
+
+(This same logic applies to any other library or libraries that may be needed.)
+
+### The R Base Package
+
+"This package contains the basic functions which let R function as a language: arithmetic, input/output, basic programming support, etc. Its contents are available through inheritance from any environment."
+
+Check (write) in console:
+
+library(help = "base")
+
+With base R, we can get:
+
+* An overview of the structure of the data:
+
+```{r}
+
+str(usdata)
+
+```
+
+* Class of the data
+
+```{r}
+
+class(usdata)
+
+```
+
+* Class of an individual column (variable):
+
+```{r}
+
+class(usdata$`Unadjusted Depreciation Estimates`)
+
+```
+
+* The length of the vector:
+
+```{r}
+
+length(usdata$`Adjusted Business Profits`)
+
+```
+
+* The number of the rows and the number of the columns:
+
+```{r}
+
+nrow(usdata)
+ncol(usdata)
+
+```
+
+* The names of the columns that we have in the dataset:
+
+```{r}
+
+names(usdata)
+
+```
+
+* The number of unique registers:
+
+```{r}
+
+unique(usdata)
+
+unique(usdata$`Unadjusted Depreciation Estimates`)
+
+```
+
+* The arithmetic mean:
+
+```{r}
+
+mean(usdata$`Unadjusted Business Profits`)
+
+```
+
+* The minimum and maximum values:
+
+```{r}
+
+min(usdata$`Adjusted Depreciation Estimates`)
+
+max(usdata$`Adjusted Depreciation Estimates`)
+
+```
+
+* Check if there are NA values:
+
+```{r}
+
+is.na(usdata)
+
+sum(is.na(usdata))
+
+```
+
+* Round the arithmetic results:
+
+```{r}
+
+round(usdata$`Adjusted Depreciation Estimates`, digits = 2)
+
+#Rounding to 2 digits
+
+```
+
+* Subset a register as per some criterion:
+
+```{r}
+
+usdata[usdata$Year >= "1929" & usdata$Year <= "1934", ] 
+
+#Remember to add a coma when performing a row-wise transformation
+
+#We add a coma in the beginning when the transformation is column-wise
+
+```
+
+
+As can be seen, base R allows us to perform a wide selection of useful operations.
+
+However, for a more professional and an even wider selection of operations, we shall turn to:
+
+### Tidyverse
+
+"At a high level, the tidyverse is a language for solving data science challenges with R code. Its primary goal is to facilitate a conversation between a human and a computer about data. Less abstractly, the tidyverse is a collection of R packages that share a high-level design philosophy and low-level grammar and data structures, so that learning one package makes it easier to learn the next."
+
+https://tidyverse.org/
+
+Tidyverse is a broad collection of packages for data science, that include `dplyr`, `tidyr`, `lubridate`, `ggplot2`, `forcats`, and others.
+
+As for now, we will stick to commands contained in `dplyr` and `tidyr`.
+
+For convenience, it is useful to load tidyverse instead of each separate package.
+
+Tidyverse relies crucially on the pipe |> operator:
+
+```{r}
+
+# |> 
+  
+# ON WINDOWS: Control + Shift + M
+  
+# ON MAC: ⌘ + Shift + M
+
+```
+
+When using the pipe, the logic is as follows:
+
+0. Make sure that the library is loaded: `library(tidyverse)` .
+
+1. Write the name of the dataset.
+
+2. Use the shortcut for the pipe operator on the right side after it.
+
+3. Go to the next line, making sure that the indentation (space) is respected.
+
+4. Write the specific command that you wish to use.
+
+
+Thus, some of the main commands are:
+
+## select
+
+```{r}
+
+library(tidyverse)
+
+usdata |> 
+  select(c(Year, `Unadjusted Business Profits`, `Unadjusted Depreciation Estimates`))
+
+#We perform a selection of 3 columns
+
+#The letter "c" is to indicate that this is a vector (two or more variables together)
+
+```
+
+If we wish to select the results, all that we have to do is to create a new variable and perform the required assignation (using either <- or = ):
+
+```{r}
+
+usdata_selection = usdata |> 
+  select(c(Year, `Unadjusted Business Profits`, `Unadjusted Depreciation Estimates`))
+
+```
+
+
+## filter
+
+```{r}
+
+usdata |> 
+  filter(Year >= "1929" & Year <= "1939") |> 
+  filter(`Adjusted Business Profits` < "0")
+
+# Notice how we can "enlarge" the pipe by adding additional criteria
+
+```
+
+Of course, we can combine the previous command in a single pipeline:
+
+```{r}
+
+usdata |> 
+  filter(Year >= "1929" & Year <= "1939" & `Adjusted Business Profits` < "0") |> 
+  select(c(Year, `Adjusted Business Profits`, `Adjusted Depreciation Estimates`))
+
+```
+
+## glimpse
+
+```{r}
+
+glimpse(usdata)
+
+#This is a direct command for an overview of the dataset
+
+```
+
+## arrange (in ascending or descending order)
+
+```{r}
+
+usdata |> 
+  arrange(`Adjusted Business Profits`)
+
+#Arranging in ascending order
+
+```
+
+```{r}
+
+usdata |> 
+  arrange(desc(`Adjusted Business Profits`))
+
+#Arranging in descending order
+
+```
+
+## mutate (create, modify, and/or delete columns)
+
+```{r}
+
+usdata |> 
+  mutate(NetBusinessGrowth = `Unadjusted Business Profits` - `Unadjusted Depreciation Estimates`)
+
+```
+
+## transmute (create, modify, and / or delete columns containing only the specified computations, and nothing else)
+
+```{r}
+
+usdata |> 
+  transmute(NetBusinessGrowth = `Unadjusted Business Profits` - `Unadjusted Depreciation Estimates`)
+
+```
+
+## rename
+
+```{r}
+
+usdata |> 
+  rename("Time" = Year)
+
+```
+
+## summarise
+
+```{r}
+
+usdata |> 
+  summarise(MeanOfAdjustedBusinessProfits = mean(`Adjusted Business Profits`))
+
+```
+
+Finally, with the knowledge of the previous commands, we can think of constructing a whole pipeline:
+
+```{r}
+
+usdata_pipeline = usdata |> 
+  filter(Year >= "1929" & Year <="1939") |> 
+  select(c(Year, `Adjusted Business Profits`, `Adjusted Depreciation Estimates`)) |> 
+  mutate(NetBusinessGrowth = `Adjusted Business Profits` - `Adjusted Depreciation Estimates`) |> 
+  rename("YearSelected" = Year) |> 
+  arrange(desc(NetBusinessGrowth))
+
+```
