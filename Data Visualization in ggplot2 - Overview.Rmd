@@ -1,0 +1,99 @@
+---
+title: "Data Visualization in ggplot2 - Overview"
+author: "Artem Urlapov Sedova"
+date: "2026-10-18"
+output: html_document
+---
+
+Let's load the document that we will be working with:
+
+```{r}
+
+library(readxl)
+
+usdata <- read_xlsx("C:/Users/artem/Desktop/R/Programación R/US Statistics.xlsx")
+
+# Change the location of the document by YOUR location of the document using CTRL C + CTRL V
+
+usdata <- as.data.frame(usdata)
+
+```
+
+
+### TWO VARIABLES (ONE ON X-AXIS, ONE ON Y-AXIS)
+
+
+Let us proceed in a step by step manner doing the data visualization in `ggplot2`, which forms part of the Tidyverse:
+
+```{r}
+
+library(tidyverse)
+
+ggplot(data = usdata,
+       mapping = aes(x = Year, y = `Unadjusted Business Profits`)) +
+       geom_bar(stat = "identity")
+
+```
+
+Let us add colour to see the distinction between the columns:
+
+```{r}
+
+library(tidyverse)
+
+ggplot(data = usdata,
+       mapping = aes(x = factor(Year), y = `Unadjusted Business Profits`,
+                     #factor(Year) allows us to derive a sequence in scale_x_discrete()
+                     fill = `Unadjusted Business Profits`)) + #add this for colour
+  geom_bar(stat = "identity") +
+  ggtitle("Unadjusted Business Profits in the US Economy (1929 - 1963)") +
+  scale_x_discrete(breaks = seq(1929, 1962, 5)) + #years in sequence of 5
+  scale_colour_gradient() +
+  labs(x = "Year", y = "Amount (Billion of Dollars)") +
+  theme_minimal()
+
+```
+
+### THREE (OR MORE) VARIABLES (ONE ON X-AXIS, TWO OR MORE ON Y-AXIS)
+
+If we wish to have a representation of two or more variables, we have to perform a tiny proceeding first - using, in this case, `pivot_longer()`:
+
+```{r}
+
+usdata_longformat = usdata |>
+  pivot_longer(
+    cols = c(`Unadjusted Business Profits`, `Unadjusted Depreciation Estimates`),
+    names_to = "Component",
+    values_to = "Value")
+
+```
+
+Let us now proceed with the data visualization, using "Component" and "Value" as our reference variables:
+
+```{r}
+
+ggplot(data = usdata_longformat,
+       mapping = aes(x = Year, y = Value)) +
+  geom_bar(stat = "identity")
+
+```
+
+Let us proceed to do a more complete visualization:
+
+```{r}
+
+ggplot(usdata_longformat, 
+       mapping = aes(x = factor(Year), y = Value, fill = Component)) +
+  geom_bar(stat = "identity") +
+  geom_vline(xintercept = which(levels(factor(usdata_longformat$Year)) == 1946), 
+             linetype = "dashed", color = "black", linewidth = 0.5) +
+  geom_text(aes(x = 18, y = 74, label = "Post World War II (1946 - 1962)"), colour = "black") +
+  scale_x_discrete(breaks = seq(1929, 1962, 5)) +
+  scale_fill_brewer(palette = "Set2", 
+                   name = "Economic Surplus (Unadjusted)",
+                   labels = c("Business Profits", "Depreciation Estimates")) +
+  labs(x = "Year", y = "Amount (Billion of Dollars)") +
+  theme_minimal()
+
+```
+
