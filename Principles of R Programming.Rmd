@@ -1,0 +1,109 @@
+---
+title: "Principles of R Programming"
+author: "Artem Urlapov Sedova"
+date: "2026-11-02"
+output: html_document
+---
+
+First things first, let's load the document that we will be working with:
+
+```{r}
+
+#Execute install.packages("readxl") in the console in case the library is not installed
+
+library(readxl)
+
+# Change the location of the document by YOUR location of the document using CTRL C + CTRL V
+
+usdata <- read_xlsx("C:/Users/artem/Desktop/R/Programación R/US Statistics.xlsx")
+
+usdata <- as.data.frame(usdata)
+
+```
+
+As a rule, the following logic is followed in most programming languages:
+
+VARIABLE -- OPERATOR -- EXPRESSION
+
+In the case of R:
+
+# The VARIABLE is what we define the variable to be. It can represent the entire dataset (`usdata` in our case) or the individual element (`Year` / `Unadjusted Business Profits` / `Unadjusted Depreciation Estimates` / `Adjusted Business Profits` / `Adjusted Depreciation Estimates`).
+
+## The OPERATOR is, very simply, the sign <- (more classical R notation) or = (more recent R notation, equivalent to Python).
+
+### The EXPRESSION is made of two components: the command (function) and the argument that this function takes. Think, for example, of `print(usdata)`, where "print" is the command and "usdata" is the argument.
+
+Unless we are working with baseR, which is the default library in R, we will need to previously load the library (or install it, if this has not be done before). We have already done this with `library(readr)`, so that we could load the Excel file.
+
+Recall the sequence that we are dealing with:
+
+VARIABLE -- OPERATOR -- EXPRESSION
+
+Observe that all of the commands that we saw in "base R and Tidyverse - Review" R Markdown follow this logic.
+
+For example:
+
+```{r}
+
+library(tidyverse)
+
+usdata |> 
+  select(c(Year, `Unadjusted Business Profits`, `Unadjusted Depreciation Estimates`))
+
+#We perform a selection of 3 columns
+
+#The letter "c" is to indicate that this is a vector (two or more variables together)
+
+```
+
+where `usdata` is the variable comprising the entire dataset, `|>` is the pipe operator in dplyr (tidyverse), and the rest is the expression (the `select` function with an argument within).
+
+Or:
+
+```{r}
+
+usdata |> 
+  filter(Year >= "1929" & Year <= "1939" & `Adjusted Business Profits` < "0") |> 
+  select(c(Year, `Adjusted Business Profits`, `Adjusted Depreciation Estimates`))
+
+```
+
+where the previous logic is followed within a pipeline that contains two lines of code.
+
+Recall that if we wish to save (store in memory) some of the previous results, we need to perform an additional assignation:
+
+```{r}
+
+us_data_selection = usdata |> 
+  filter(Year >= "1929" & Year <= "1939" & `Adjusted Business Profits` < "0") |> 
+  select(c(Year, `Adjusted Business Profits`, `Adjusted Depreciation Estimates`))
+
+```
+
+In the previous code, everything is as before, with the important exception that the results of the operation are being saved to a new variable called `us_data_selection`.
+
+As a last but important note, keep in mind that the previous commands have been executed in tidyverse.
+
+Should we wish to have done something in baseR, the manner in which variables are specified are with the dollar sign.
+
+For example:
+
+```{r}
+
+mean(usdata$`Unadjusted Business Profits`)
+
+```
+
+Or:
+
+```{r}
+
+unique(usdata$`Unadjusted Depreciation Estimates`)
+
+```
+
+baseR has another convenient advantage, which is the fact that we may obtain a result by specifying the expression only, without the need of writing down either the variable or the operator.
+
+However, it has the important disadvantage of performing a more limited set of functions as compared to, for instance, tidyverse (https://tidyverse.org/).
+
+For this reason, we will stick to external libraries mainly, where the previous VARIABLE -- OPERATOR -- EXPRESSION is always respected.
